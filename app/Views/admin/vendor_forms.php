@@ -105,8 +105,8 @@ if ($isDetail) $title = 'Detail Vendor';
                     <textarea name="deskripsi" class="form-control border-2 shadow-sm" rows="4" <?= $isDetail ? 'readonly' : '' ?>><?= $isEdit ? esc($vendor['deskripsi']) : '' ?></textarea>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label fw-bold">Daftar Layanan</label>
-                    <textarea name="layanan" class="form-control border-2 shadow-sm" rows="4" <?= $isDetail ? 'readonly' : '' ?>><?= $isEdit ? esc($vendor['layanan']) : '' ?></textarea>
+                    <label class="form-label fw-bold">Layanan yang Didapat (Include Harga Dasar)</label>
+                    <textarea name="layanan" class="form-control border-2 shadow-sm" rows="4" placeholder="Contoh: Rias Pengantin, 2x Ganti Gaun, 100 Foto Cetak" <?= $isDetail ? 'readonly' : '' ?>><?= $isEdit ? esc($vendor['layanan']) : '' ?></textarea>
                 </div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label fw-bold">Pengalaman</label>
@@ -136,5 +136,76 @@ if ($isDetail) $title = 'Detail Vendor';
         </form>
     </div>
 </div>
+
+<?php if ($isEdit || $isDetail): ?>
+<div class="card border-0 shadow-sm rounded-4 mt-4">
+    <div class="card-body p-4 p-md-5">
+        <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+            <i class="bi bi-box me-2"></i>Manajemen Layanan / Paket Tambahan
+        </h5>
+        
+        <?php if (session()->getFlashdata('success')): ?>
+            <div class="alert alert-success"><?= session()->getFlashdata('success') ?></div>
+        <?php endif; ?>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nama Layanan / Paket</th>
+                        <th>Harga Tambahan</th>
+                        <?php if (!$isDetail): ?><th class="text-center" style="width: 100px;">Aksi</th><?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php if (!empty($pakets)): ?>
+                        <?php foreach ($pakets as $p): ?>
+                            <tr>
+                                <td><?= esc($p['nama_paket']) ?></td>
+                                <td>Rp <?= number_format($p['harga'], 0, ',', '.') ?></td>
+                                <?php if (!$isDetail): ?>
+                                    <td class="text-center">
+                                        <a href="<?= base_url('admin/paket-vendor/delete/' . $p['id']) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus layanan ini?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                <?php endif; ?>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="<?= $isDetail ? 2 : 3 ?>" class="text-center text-muted py-3">Belum ada layanan/paket yang ditambahkan untuk vendor ini.</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <?php if (!$isDetail): ?>
+            <form action="<?= base_url('admin/paket-vendor/store') ?>" method="post" class="bg-light p-4 rounded-3 border">
+                <?= csrf_field() ?>
+                <input type="hidden" name="vendor_id" value="<?= $vendor['id'] ?>">
+                
+                <h6 class="fw-bold mb-3">Tambah Layanan / Paket Baru</h6>
+                <div class="row align-items-end">
+                    <div class="col-md-5 mb-3 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">Nama Layanan</label>
+                        <input type="text" name="nama_paket" class="form-control" required placeholder="Contoh: Paket Cinematic Video">
+                    </div>
+                    <div class="col-md-5 mb-3 mb-md-0">
+                        <label class="form-label text-muted small fw-bold">Harga (Rp)</label>
+                        <input type="number" name="harga" class="form-control" required placeholder="Contoh: 2500000" min="0">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">
+                            <i class="bi bi-plus-lg me-1"></i> Tambah
+                        </button>
+                    </div>
+                </div>
+            </form>
+        <?php endif; ?>
+    </div>
+</div>
+<?php endif; ?>
 
 <?= $this->include('admin/layout/footer') ?>

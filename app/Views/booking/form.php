@@ -57,6 +57,26 @@
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Waktu Konsultasi</label>
                             <input type="time" name="waktu_konsultasi" required class="w-full px-5 py-4 rounded-2xl bg-gray-50 border-0">
                         </div>
+
+                        <div class="md:col-span-2 mt-4">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-4">Pilih Paket Tambahan (Bisa lebih dari satu)</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <?php
+                                if (empty($pakets)): ?>
+                                    <p class="text-sm text-gray-500 italic md:col-span-2">Belum ada paket tambahan dari vendor ini.</p>
+                                <?php else:
+                                    foreach($pakets as $paket): ?>
+                                    <label class="flex items-center p-4 border border-gray-100 rounded-2xl cursor-pointer hover:bg-pink-50 transition group">
+                                        <input type="checkbox" name="paket[]" value="<?= esc($paket['nama_paket']) ?>" data-price="<?= esc($paket['harga']) ?>" class="paket-checkbox w-5 h-5 text-pink-500 border-gray-300 rounded focus:ring-pink-500">
+                                        <div class="ml-3 flex flex-col">
+                                            <span class="text-sm font-bold text-gray-700 group-hover:text-pink-600 transition"><?= esc($paket['nama_paket']) ?></span>
+                                            <span class="text-xs text-pink-500 font-semibold">+ Rp <?= number_format($paket['harga'], 0, ',', '.') ?></span>
+                                        </div>
+                                    </label>
+                                <?php endforeach;
+                                endif; ?>
+                            </div>
+                        </div>
                         
                         <div class="md:col-span-2">
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Pesan Tambahan (Opsional)</label>
@@ -77,6 +97,10 @@
                         <div class="flex justify-between text-sm">
                             <span class="text-gray-400">Add-on Tamu (>100)</span>
                             <span id="extraPriceDisplay" class="text-pink-400">Rp 0</span>
+                        </div>
+                        <div class="flex justify-between text-sm border-t border-gray-800 pt-3">
+                            <span class="text-gray-400">Total Paket Tambahan</span>
+                            <span id="paketPriceDisplay" class="text-pink-400 font-bold">Rp 0</span>
                         </div>
                         <div class="pt-6 border-t border-gray-800">
                             <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">Total Estimasi</p>
@@ -99,7 +123,9 @@
     const inputTotalPrice = document.getElementById('inputTotalPrice');
     const basePriceDisplay = document.getElementById('basePriceDisplay');
     const extraPriceDisplay = document.getElementById('extraPriceDisplay');
+    const paketPriceDisplay = document.getElementById('paketPriceDisplay');
     const totalPriceDisplay = document.getElementById('totalPriceDisplay');
+    const paketCheckboxes = document.querySelectorAll('.paket-checkbox');
 
     function updatePrice() {
         const selectedOption = vendorSelect.options[vendorSelect.selectedIndex];
@@ -107,16 +133,26 @@
         const pax = parseInt(jumlahTamuInput.value) || 0;
         
         let extra = (pax > 100) ? Math.ceil((pax - 100) / 100) * 100000 : 0;
-        const total = currentBasePrice + extra;
+
+        let totalPaket = 0;
+        paketCheckboxes.forEach(cb => {
+            if (cb.checked) {
+                totalPaket += parseInt(cb.getAttribute('data-price')) || 0;
+            }
+        });
+
+        const total = currentBasePrice + extra + totalPaket;
         
         basePriceDisplay.innerText = "Rp " + currentBasePrice.toLocaleString('id-ID');
         extraPriceDisplay.innerText = "Rp " + extra.toLocaleString('id-ID');
+        paketPriceDisplay.innerText = "Rp " + totalPaket.toLocaleString('id-ID');
         totalPriceDisplay.innerText = "Rp " + total.toLocaleString('id-ID');
         inputTotalPrice.value = total;
     }
 
     vendorSelect.addEventListener('change', updatePrice);
     jumlahTamuInput.addEventListener('input', updatePrice);
+    paketCheckboxes.forEach(cb => cb.addEventListener('change', updatePrice));
     updatePrice();
 </script>
 

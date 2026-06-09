@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\VendorModel;
 use App\Models\BookingModel;
 use App\Models\LayananModel;
+use App\Models\PaketModel;
 
 class Booking extends BaseController
 {
@@ -20,16 +21,18 @@ class Booking extends BaseController
     {
         $vendorModel  = new VendorModel();
         $layananModel = new LayananModel();
+        $paketModel   = new PaketModel();
         $vendor = $vendorModel->find($vendor_id);
 
         if (!$vendor) {
             return redirect()->to('/vendor')->with('error', 'Vendor tidak ditemukan');
         }
 
-        return view('booking/index', [
+        return view('booking/form', [
             'vendor'   => $vendor,
             'vendors'  => $vendorModel->findAll(),
-            'layanans' => $layananModel->findAll()
+            'layanans' => $layananModel->findAll(),
+            'pakets'   => $paketModel->where('vendor_id', $vendor_id)->findAll()
         ]);
     }
 
@@ -45,6 +48,14 @@ class Booking extends BaseController
 
     public function create()
     {
+        $paket = $this->request->getPost('paket');
+        $pesan = $this->request->getPost('pesan');
+        
+        if (!empty($paket) && is_array($paket)) {
+            $pesanPaket = "Daftar Paket Tambahan:\n- " . implode("\n- ", $paket);
+            $pesan = empty($pesan) ? $pesanPaket : $pesan . "\n\n" . $pesanPaket;
+        }
+
         $this->bookingModel->insert([
             'user_id'            => session()->get('user_id'),
             'vendor_id'          => $this->request->getPost('vendor_id'),
@@ -56,7 +67,7 @@ class Booking extends BaseController
             'waktu_konsultasi'   => $this->request->getPost('waktu_konsultasi'),
             'jumlah_tamu'        => $this->request->getPost('jumlah_tamu'),
             'total_harga'        => $this->request->getPost('total_harga'),
-            'pesan'              => $this->request->getPost('pesan'),
+            'pesan'              => $pesan,
             'status'             => 'pending'
         ]);
 

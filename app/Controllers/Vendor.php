@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\VendorModel;
+use App\Models\PaketModel;
 
 class Vendor extends BaseController
 {
@@ -65,9 +66,12 @@ if (empty($vendor['deskripsi'])) {
     }
 }
 
+        $paketModel = new PaketModel();
+        $pakets = $paketModel->where('vendor_id', $id)->findAll();
 
         return view('vendor/detail', [
-            'vendor' => $vendor
+            'vendor' => $vendor,
+            'pakets' => $pakets
         ]);
     }
 }

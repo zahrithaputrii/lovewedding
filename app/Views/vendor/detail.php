@@ -56,7 +56,7 @@
                 <div class="flex flex-wrap gap-6 text-gray-600">
                     <div class="flex items-center gap-2">
                         <span class="text-yellow-400">★</span>
-                        <span class="font-bold text-gray-800"><?= esc($vendor['rating']) ?> (<?= esc($vendor['jumlah_review']) ?> reviews)</span>
+                        <span class="font-bold text-gray-800"><?= esc($vendor['rating'] ?? '0.0') ?> (<?= esc($vendor['jumlah_review'] ?? '0') ?> reviews)</span>
                     </div>
                     <div class="flex items-center gap-2"><span>📍</span> <?= esc($vendor['lokasi']) ?></div>
                     <div class="flex items-center gap-2"><span>📞</span> <?= esc($vendor['no_telepon']) ?></div>
@@ -106,6 +106,24 @@
                             <li><?= trim(esc($item)) ?></li>
                         <?php endif; endforeach; ?>
                     </ul>
+                </section>
+
+                <section>
+                    <h4 class="text-xl font-bold text-gray-900 mb-4">Paket Tambahan Tersedia (Opsional)</h4>
+                    <?php if(!empty($pakets)): ?>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <?php foreach($pakets as $p): ?>
+                                <div class="flex flex-col p-5 bg-white border border-gray-100 shadow-sm rounded-2xl hover:border-pink-300 hover:shadow-md transition">
+                                    <span class="font-bold text-gray-700 text-lg mb-1"><?= esc($p['nama_paket']) ?></span>
+                                    <span class="font-bold text-pink-500">+ Rp <?= number_format($p['harga'], 0, ',', '.') ?></span>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <p class="text-gray-500 italic bg-gray-50 p-4 rounded-xl border border-gray-100">
+                            Vendor ini belum menambahkan paket layanan tambahan.
+                        </p>
+                    <?php endif; ?>
                 </section>
 
                 <?php if(!empty($vendor['catatan'])): ?>

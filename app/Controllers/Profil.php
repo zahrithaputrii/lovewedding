@@ -14,25 +14,49 @@ class Profil extends BaseController
 
     public function index() 
     {
-        $userId = session()->get('user_id');
+        $userId = session()->get('user_id') ?? session()->get('id');
         $bookingModel = new BookingModel();
         
+        $user = (new UserDetailModel())->where('user_id', $userId)->first();
+        if (!$user) {
+            $user = [];
+        }
+        $user['nama_lengkap'] = !empty($user['nama_lengkap']) ? $user['nama_lengkap'] : session()->get('username');
+        $user['email']        = !empty($user['email']) ? $user['email'] : session()->get('email');
+
         $data = [
-            'bookings' => $bookingModel->where('user_id', $userId)->orderBy('id', 'DESC')->findAll(),
-            'user'     => (new UserDetailModel())->where('user_id', $userId)->first()
+            'bookings' => $bookingModel->select('booking.*, vendor.nama AS vendor_nama')
+                                       ->join('vendor', 'vendor.id = booking.vendor_id', 'left')
+                                       ->where('booking.user_id', $userId)
+                                       ->orderBy('booking.id', 'DESC')
+                                       ->findAll(),
+            'user'     => $user
         ];
         return view('profil/index', $data);
     }
 
     public function edit() 
     {
-        $userId = session()->get('user_id');
+        $userId = session()->get('user_id') ?? session()->get('id');
         $userDetailModel = new UserDetailModel();
         
         $user = $userDetailModel->where('user_id', $userId)->first();
 
         if (!$user) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound("Data user tidak ditemukan");
+            // Jika user detail belum ada di database, kita buat data kosong sementara untuk form
+            $user = [
+                'user_id'            => $userId,
+                'nama_lengkap'       => session()->get('username'),
+                'email'              => session()->get('email'),
+                'nama_pasangan'      => '',
+                'no_telepon'         => '',
+                'lokasi'             => '',
+                'tanggal_pernikahan' => '',
+                'foto'               => ''
+            ];
+        } else {
+            $user['nama_lengkap'] = !empty($user['nama_lengkap']) ? $user['nama_lengkap'] : session()->get('username');
+            $user['email']        = !empty($user['email']) ? $user['email'] : session()->get('email');
         }
 
         $data = [
@@ -45,7 +69,7 @@ class Profil extends BaseController
 
     public function update()
 {
-    $userId = session()->get('user_id');
+        $userId = session()->get('user_id') ?? session()->get('id');
     $userDetailModel = new UserDetailModel();
 
     $dataUpdate = [
@@ -64,15 +88,23 @@ class Profil extends BaseController
         $dataUpdate['foto'] = $namaFoto;
     }
 
-    $dataUpdate = array_filter($dataUpdate);
+        // Filter nilai yang null atau empty string
+        $dataUpdate = array_filter($dataUpdate, function($val) {
+            return $val !== null && $val !== '';
+        });
 
     if (empty($dataUpdate)) {
         return redirect()->back()->with('error', 'Tidak ada data yang diubah.');
     }
 
-    $userDetailModel
-        ->where('user_id', $userId)
-        ->update(null, $dataUpdate);
+        $existing = $userDetailModel->where('user_id', $userId)->first();
+        
+        if ($existing) {
+            $userDetailModel->where('user_id', $userId)->set($dataUpdate)->update();
+        } else {
+            $dataUpdate['user_id'] = $userId;
+            $userDetailModel->insert($dataUpdate);
+        }
 
     return redirect()->to('/profil')->with('success', 'Profil berhasil diperbarui!');
 }
