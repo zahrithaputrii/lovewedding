@@ -30,10 +30,31 @@ class VendorApi extends BaseController
             if (!empty($vendor['wedding_reference_foto'])) {
                 if (str_starts_with($vendor['wedding_reference_foto'], 'http')) {
                     // Already absolute URL
-                } else if (file_exists(FCPATH . 'uploads/' . $vendor['wedding_reference_foto'])) {
-                    $vendor['wedding_reference_foto'] = base_url('uploads/' . $vendor['wedding_reference_foto']);
                 } else {
-                    $vendor['wedding_reference_foto'] = base_url('images/' . $vendor['wedding_reference_foto']);
+                    $refPhotos = explode(',', $vendor['wedding_reference_foto']);
+                    $formattedRefPhotos = [];
+                    foreach ($refPhotos as $photo) {
+                        $photo = trim($photo);
+                        if (!empty($photo)) {
+                            if (file_exists(FCPATH . 'uploads/reference/' . $photo)) {
+                                $formattedRefPhotos[] = base_url('uploads/reference/' . $photo);
+                            } else {
+                                $formattedRefPhotos[] = base_url('images/' . $photo);
+                            }
+                        }
+                    }
+                    $vendor['wedding_reference_foto'] = implode(',', $formattedRefPhotos);
+                }
+            }
+
+            // Format trend photo
+            if (!empty($vendor['trend_foto'])) {
+                if (str_starts_with($vendor['trend_foto'], 'http')) {
+                    // Already absolute URL
+                } else if (file_exists(FCPATH . 'uploads/trend/' . $vendor['trend_foto'])) {
+                    $vendor['trend_foto'] = base_url('uploads/trend/' . $vendor['trend_foto']);
+                } else {
+                    $vendor['trend_foto'] = base_url('images/' . $vendor['trend_foto']);
                 }
             }
         }

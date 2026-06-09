@@ -39,30 +39,47 @@ class Vendor extends BaseController
             $fileFoto->move('uploads/', $namaFoto);
         }
 
-        $fileRefFoto = $this->request->getFile('wedding_reference_foto');
-        $namaRefFoto = null;
+        $fileRefFotos = $this->request->getFileMultiple('wedding_reference_foto');
+        $refFotoNames = [];
 
-        if ($fileRefFoto && $fileRefFoto->isValid() && !$fileRefFoto->hasMoved()) {
-            $namaRefFoto = $fileRefFoto->getRandomName();
-            $fileRefFoto->move('uploads/', $namaRefFoto);
+        if ($fileRefFotos) {
+            foreach ($fileRefFotos as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $namaRefFoto = $file->getRandomName();
+                    $file->move('uploads/reference/', $namaRefFoto);
+                    $refFotoNames[] = $namaRefFoto;
+                }
+            }
+        }
+        $namaRefFotoString = !empty($refFotoNames) ? implode(',', $refFotoNames) : null;
+
+        $fileTrendFoto = $this->request->getFile('trend_foto');
+        $namaTrendFoto = null;
+
+        if ($fileTrendFoto && $fileTrendFoto->isValid() && !$fileTrendFoto->hasMoved()) {
+            $namaTrendFoto = $fileTrendFoto->getRandomName();
+            $fileTrendFoto->move('uploads/trend/', $namaTrendFoto);
         }
 
         $this->vendor->insert([
-            'nama'                    => $this->request->getPost('nama'),
-            'foto'                    => $namaFoto,
-            'kategori'                => $this->request->getPost('kategori'),
-            'harga'                   => $this->request->getPost('harga'),
-            'lokasi'                  => $this->request->getPost('lokasi'),
-            'no_telepon'              => $this->request->getPost('no_telepon'),
-            'deskripsi'               => $this->request->getPost('deskripsi'),
-            'pengalaman'              => $this->request->getPost('pengalaman'),
-            'layanan'                 => $this->request->getPost('layanan'),
-            'alasan'                  => $this->request->getPost('alasan'),
-            'catatan'                 => $this->request->getPost('catatan'),
-            'is_trend'                => $this->request->getPost('is_trend') ? 1 : 0,
-            'is_wedding_reference'    => $this->request->getPost('is_wedding_reference') ? 1 : 0,
-            'wedding_reference_title' => $this->request->getPost('wedding_reference_title'),
-            'wedding_reference_foto'  => $namaRefFoto,
+            'nama'                          => $this->request->getPost('nama'),
+            'foto'                          => $namaFoto,
+            'kategori'                      => $this->request->getPost('kategori'),
+            'harga'                         => $this->request->getPost('harga'),
+            'rating'                        => $this->request->getPost('rating') ? floatval($this->request->getPost('rating')) : 0.0,
+            'lokasi'                        => $this->request->getPost('lokasi'),
+            'no_telepon'                    => $this->request->getPost('no_telepon'),
+            'deskripsi'                     => $this->request->getPost('deskripsi'),
+            'pengalaman'                    => $this->request->getPost('pengalaman'),
+            'layanan'                       => $this->request->getPost('layanan'),
+            'alasan'                        => $this->request->getPost('alasan'),
+            'catatan'                       => $this->request->getPost('catatan'),
+            'is_trend'                      => $this->request->getPost('is_trend') ? 1 : 0,
+            'is_wedding_reference'          => $this->request->getPost('is_wedding_reference') ? 1 : 0,
+            'wedding_reference_title'       => $this->request->getPost('wedding_reference_title'),
+            'wedding_reference_foto'        => $namaRefFotoString,
+            'wedding_reference_description' => $this->request->getPost('wedding_reference_description'),
+            'trend_foto'                    => $namaTrendFoto,
         ]);
 
         return redirect()->to('/admin/vendor')->with('success', 'Vendor & Foto berhasil ditambahkan');
@@ -92,34 +109,66 @@ class Vendor extends BaseController
             }
         }
 
-        $fileRefFoto = $this->request->getFile('wedding_reference_foto');
-        $namaRefFoto = $vendorLama['wedding_reference_foto'];
+        $fileRefFotos = $this->request->getFileMultiple('wedding_reference_foto');
+        $namaRefFotoString = $vendorLama['wedding_reference_foto'];
 
-        if ($fileRefFoto && $fileRefFoto->isValid() && !$fileRefFoto->hasMoved()) {
-            $namaRefFoto = $fileRefFoto->getRandomName();
-            $fileRefFoto->move('uploads/', $namaRefFoto);
+        $uploadedRefFotos = [];
+        if ($fileRefFotos) {
+            foreach ($fileRefFotos as $file) {
+                if ($file->isValid() && !$file->hasMoved()) {
+                    $namaRefFoto = $file->getRandomName();
+                    $file->move('uploads/reference/', $namaRefFoto);
+                    $uploadedRefFotos[] = $namaRefFoto;
+                }
+            }
+        }
 
-            if ($vendorLama['wedding_reference_foto'] && file_exists('uploads/' . $vendorLama['wedding_reference_foto'])) {
-                unlink('uploads/' . $vendorLama['wedding_reference_foto']);
+        if (!empty($uploadedRefFotos)) {
+            $namaRefFotoString = implode(',', $uploadedRefFotos);
+
+            // Delete old files
+            if (!empty($vendorLama['wedding_reference_foto'])) {
+                $oldImages = explode(',', $vendorLama['wedding_reference_foto']);
+                foreach ($oldImages as $oldImg) {
+                    $oldImg = trim($oldImg);
+                    if (!empty($oldImg) && file_exists('uploads/reference/' . $oldImg)) {
+                        unlink('uploads/reference/' . $oldImg);
+                    }
+                }
+            }
+        }
+
+        $fileTrendFoto = $this->request->getFile('trend_foto');
+        $namaTrendFoto = $vendorLama['trend_foto'];
+
+        if ($fileTrendFoto && $fileTrendFoto->isValid() && !$fileTrendFoto->hasMoved()) {
+            $namaTrendFoto = $fileTrendFoto->getRandomName();
+            $fileTrendFoto->move('uploads/trend/', $namaTrendFoto);
+
+            if ($vendorLama['trend_foto'] && file_exists('uploads/trend/' . $vendorLama['trend_foto'])) {
+                unlink('uploads/trend/' . $vendorLama['trend_foto']);
             }
         }
 
         $this->vendor->update($id, [
-            'nama'                    => $this->request->getPost('nama'),
-            'foto'                    => $namaFoto,
-            'kategori'                => $this->request->getPost('kategori'),
-            'harga'                   => $this->request->getPost('harga'),
-            'lokasi'                  => $this->request->getPost('lokasi'),
-            'no_telepon'              => $this->request->getPost('no_telepon'),
-            'deskripsi'               => $this->request->getPost('deskripsi'),
-            'pengalaman'              => $this->request->getPost('pengalaman'),
-            'layanan'                 => $this->request->getPost('layanan'),
-            'alasan'                  => $this->request->getPost('alasan'),
-            'catatan'                 => $this->request->getPost('catatan'),
-            'is_trend'                => $this->request->getPost('is_trend') ? 1 : 0,
-            'is_wedding_reference'    => $this->request->getPost('is_wedding_reference') ? 1 : 0,
-            'wedding_reference_title' => $this->request->getPost('wedding_reference_title'),
-            'wedding_reference_foto'  => $namaRefFoto,
+            'nama'                          => $this->request->getPost('nama'),
+            'foto'                          => $namaFoto,
+            'kategori'                      => $this->request->getPost('kategori'),
+            'harga'                         => $this->request->getPost('harga'),
+            'rating'                        => $this->request->getPost('rating') ? floatval($this->request->getPost('rating')) : 0.0,
+            'lokasi'                        => $this->request->getPost('lokasi'),
+            'no_telepon'                    => $this->request->getPost('no_telepon'),
+            'deskripsi'                     => $this->request->getPost('deskripsi'),
+            'pengalaman'                    => $this->request->getPost('pengalaman'),
+            'layanan'                       => $this->request->getPost('layanan'),
+            'alasan'                        => $this->request->getPost('alasan'),
+            'catatan'                       => $this->request->getPost('catatan'),
+            'is_trend'                      => $this->request->getPost('is_trend') ? 1 : 0,
+            'is_wedding_reference'          => $this->request->getPost('is_wedding_reference') ? 1 : 0,
+            'wedding_reference_title'       => $this->request->getPost('wedding_reference_title'),
+            'wedding_reference_foto'        => $namaRefFotoString,
+            'wedding_reference_description' => $this->request->getPost('wedding_reference_description'),
+            'trend_foto'                    => $namaTrendFoto,
         ]);
 
         return redirect()->to('/admin/vendor')->with('success', 'Vendor berhasil diperbarui');
@@ -133,8 +182,18 @@ class Vendor extends BaseController
             unlink('uploads/' . $vendor['foto']);
         }
 
-        if ($vendor['wedding_reference_foto'] && file_exists('uploads/' . $vendor['wedding_reference_foto'])) {
-            unlink('uploads/' . $vendor['wedding_reference_foto']);
+        if ($vendor['wedding_reference_foto']) {
+            $oldImages = explode(',', $vendor['wedding_reference_foto']);
+            foreach ($oldImages as $oldImg) {
+                $oldImg = trim($oldImg);
+                if (!empty($oldImg) && file_exists('uploads/reference/' . $oldImg)) {
+                    unlink('uploads/reference/' . $oldImg);
+                }
+            }
+        }
+
+        if ($vendor['trend_foto'] && file_exists('uploads/trend/' . $vendor['trend_foto'])) {
+            unlink('uploads/trend/' . $vendor['trend_foto']);
         }
 
         $this->vendor->delete($id);

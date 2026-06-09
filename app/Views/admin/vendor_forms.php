@@ -56,18 +56,23 @@ if ($isDetail) $title = 'Detail Vendor';
                             <input type="text" name="nama" value="<?= $isEdit ? esc($vendor['nama']) : '' ?>" 
                                    class="form-control border-2 shadow-sm" placeholder="Nama Bisnis / Brand" <?= $isDetail ? 'readonly' : 'required' ?>>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold">Kategori Layanan</label>
                             <input type="text" name="kategori" value="<?= $isEdit ? esc($vendor['kategori']) : '' ?>" 
                                    class="form-control border-2 shadow-sm" placeholder="MUA, Catering, MUA, dll" <?= $isDetail ? 'readonly' : '' ?>>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold">Estimasi Harga</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-2 shadow-sm fw-bold">Rp</span>
                                 <input type="number" name="harga" value="<?= $isEdit ? esc($vendor['harga']) : '' ?>" 
                                        class="form-control border-2 shadow-sm" placeholder="Contoh: 5000000" <?= $isDetail ? 'readonly' : '' ?>>
                             </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">Rating Bintang (Admin)</label>
+                            <input type="number" name="rating" value="<?= $isEdit ? esc($vendor['rating']) : '4.0' ?>" 
+                                   class="form-control border-2 shadow-sm" placeholder="Contoh: 4.5" min="1" max="5" step="0.1" <?= $isDetail ? 'readonly' : '' ?> required>
                         </div>
                     </div>
                 </div>
@@ -135,8 +140,22 @@ if ($isDetail) $title = 'Detail Vendor';
                                <?= ($isEdit && isset($vendor['is_trend']) && $vendor['is_trend'] == 1) ? 'checked' : '' ?> <?= $isDetail ? 'disabled' : '' ?>>
                         <label class="form-check-label fw-bold" for="isTrend">Tampilkan di Trend Home (Aplikasi)</label>
                     </div>
-                    <div class="form-text text-muted small">Jika dicentang, vendor ini akan masuk ke daftar tren di halaman depan aplikasi Flutter.</div>
+                    <div class="form-text text-muted small mb-3">Jika dicentang, vendor ini akan masuk ke daftar tren di halaman depan aplikasi Flutter.</div>
                     
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Foto Trend (Aplikasi)</label>
+                        <?php if($isEdit && !empty($vendor['trend_foto'])): ?>
+                            <div class="mb-2">
+                                <img src="<?= base_url('uploads/trend/' . $vendor['trend_foto']) ?>" 
+                                     class="rounded shadow-sm border" style="max-height: 100px; object-fit: cover;">
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!$isDetail): ?>
+                            <input type="file" name="trend_foto" class="form-control form-control-sm shadow-sm" accept="image/*">
+                            <div class="form-text small italic text-pink">* Unggah foto khusus untuk halaman trend home (opsional).</div>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="form-check form-switch mt-4">
                         <input class="form-check-input" type="checkbox" name="is_wedding_reference" id="isWeddingReference" value="1" 
                                <?= ($isEdit && isset($vendor['is_wedding_reference']) && $vendor['is_wedding_reference'] == 1) ? 'checked' : '' ?> <?= $isDetail ? 'disabled' : '' ?>>
@@ -154,16 +173,32 @@ if ($isDetail) $title = 'Detail Vendor';
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label fw-bold">Foto Wedding Reference / Trend</label>
-                        <?php if($isEdit && !empty($vendor['wedding_reference_foto'])): ?>
-                            <div class="mb-2">
-                                <img src="<?= base_url('uploads/' . $vendor['wedding_reference_foto']) ?>" 
-                                     class="rounded shadow-sm border" style="max-height: 120px; object-fit: cover;">
+                        <label class="form-label fw-bold">Deskripsi Wedding Reference</label>
+                        <textarea name="wedding_reference_description" class="form-control border-2 shadow-sm" rows="3" placeholder="Contoh: Tema ini menggabungkan keindahan elegan dengan suasana romantis..." <?= $isDetail ? 'readonly' : '' ?>><?= $isEdit ? esc($vendor['wedding_reference_description']) : '' ?></textarea>
+                        <div class="form-text text-muted small">Deskripsi tema referensi yang akan muncul di aplikasi saat referensi dibuka.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Foto Wedding Reference</label>
+                        <?php if($isEdit && !empty($vendor['wedding_reference_foto'])): 
+                            $refPhotos = explode(',', $vendor['wedding_reference_foto']);
+                        ?>
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                <?php foreach($refPhotos as $photo): 
+                                    $photo = trim($photo);
+                                    if(!empty($photo)):
+                                ?>
+                                    <img src="<?= base_url('uploads/reference/' . $photo) ?>" 
+                                         class="rounded shadow-sm border" style="height: 80px; width: 80px; object-fit: cover;">
+                                <?php 
+                                    endif;
+                                endforeach; 
+                                ?>
                             </div>
                         <?php endif; ?>
                         <?php if (!$isDetail): ?>
-                            <input type="file" name="wedding_reference_foto" class="form-control form-control-sm shadow-sm" accept="image/*">
-                            <div class="form-text small italic text-pink">* Unggah foto bertema referensi pernikahan.</div>
+                            <input type="file" name="wedding_reference_foto[]" class="form-control form-control-sm shadow-sm" accept="image/*" multiple>
+                            <div class="form-text small italic text-pink">* Unggah foto bertema referensi pernikahan (1 - 10 foto).</div>
                         <?php endif; ?>
                     </div>
                 </div>

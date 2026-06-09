@@ -9,6 +9,7 @@ class VendorModel extends Model
     protected $allowedFields = [
         'layanan_id', 'nama', 'slug', 'kategori', 'harga', 'rating', 'jumlah_review',
         'lokasi', 'no_telepon', 'foto', 'deskripsi', 'pengalaman', 'layanan', 'alasan', 
-        'catatan', 'is_trend', 'is_wedding_reference', 'wedding_reference_title', 'wedding_reference_foto'
+        'catatan', 'is_trend', 'is_wedding_reference', 'wedding_reference_title', 'wedding_reference_foto',
+        'wedding_reference_description', 'trend_foto'
     ];
 }
