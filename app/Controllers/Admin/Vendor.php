@@ -34,23 +34,35 @@ class Vendor extends BaseController
         $fileFoto = $this->request->getFile('foto');
         $namaFoto = null;
 
-        if ($fileFoto->isValid() && !$fileFoto->hasMoved()) {
+        if ($fileFoto && $fileFoto->isValid() && !$fileFoto->hasMoved()) {
             $namaFoto = $fileFoto->getRandomName();
             $fileFoto->move('uploads/', $namaFoto);
         }
 
+        $fileRefFoto = $this->request->getFile('wedding_reference_foto');
+        $namaRefFoto = null;
+
+        if ($fileRefFoto && $fileRefFoto->isValid() && !$fileRefFoto->hasMoved()) {
+            $namaRefFoto = $fileRefFoto->getRandomName();
+            $fileRefFoto->move('uploads/', $namaRefFoto);
+        }
+
         $this->vendor->insert([
-            'nama'        => $this->request->getPost('nama'),
-            'foto'        => $namaFoto,
-            'kategori'    => $this->request->getPost('kategori'),
-            'harga'       => $this->request->getPost('harga'),
-            'lokasi'      => $this->request->getPost('lokasi'),
-            'no_telepon'  => $this->request->getPost('no_telepon'),
-            'deskripsi'   => $this->request->getPost('deskripsi'),
-            'pengalaman'  => $this->request->getPost('pengalaman'),
-            'layanan'     => $this->request->getPost('layanan'),
-            'alasan'      => $this->request->getPost('alasan'),
-            'catatan'     => $this->request->getPost('catatan'),
+            'nama'                    => $this->request->getPost('nama'),
+            'foto'                    => $namaFoto,
+            'kategori'                => $this->request->getPost('kategori'),
+            'harga'                   => $this->request->getPost('harga'),
+            'lokasi'                  => $this->request->getPost('lokasi'),
+            'no_telepon'              => $this->request->getPost('no_telepon'),
+            'deskripsi'               => $this->request->getPost('deskripsi'),
+            'pengalaman'              => $this->request->getPost('pengalaman'),
+            'layanan'                 => $this->request->getPost('layanan'),
+            'alasan'                  => $this->request->getPost('alasan'),
+            'catatan'                 => $this->request->getPost('catatan'),
+            'is_trend'                => $this->request->getPost('is_trend') ? 1 : 0,
+            'is_wedding_reference'    => $this->request->getPost('is_wedding_reference') ? 1 : 0,
+            'wedding_reference_title' => $this->request->getPost('wedding_reference_title'),
+            'wedding_reference_foto'  => $namaRefFoto,
         ]);
 
         return redirect()->to('/admin/vendor')->with('success', 'Vendor & Foto berhasil ditambahkan');
@@ -71,7 +83,7 @@ class Vendor extends BaseController
         $fileFoto = $this->request->getFile('foto');
         $namaFoto = $vendorLama['foto']; 
 
-        if ($fileFoto->isValid() && !$fileFoto->hasMoved()) {
+        if ($fileFoto && $fileFoto->isValid() && !$fileFoto->hasMoved()) {
             $namaFoto = $fileFoto->getRandomName();
             $fileFoto->move('uploads/', $namaFoto);
 
@@ -80,18 +92,34 @@ class Vendor extends BaseController
             }
         }
 
+        $fileRefFoto = $this->request->getFile('wedding_reference_foto');
+        $namaRefFoto = $vendorLama['wedding_reference_foto'];
+
+        if ($fileRefFoto && $fileRefFoto->isValid() && !$fileRefFoto->hasMoved()) {
+            $namaRefFoto = $fileRefFoto->getRandomName();
+            $fileRefFoto->move('uploads/', $namaRefFoto);
+
+            if ($vendorLama['wedding_reference_foto'] && file_exists('uploads/' . $vendorLama['wedding_reference_foto'])) {
+                unlink('uploads/' . $vendorLama['wedding_reference_foto']);
+            }
+        }
+
         $this->vendor->update($id, [
-            'nama'        => $this->request->getPost('nama'),
-            'foto'        => $namaFoto,
-            'kategori'    => $this->request->getPost('kategori'),
-            'harga'       => $this->request->getPost('harga'),
-            'lokasi'      => $this->request->getPost('lokasi'),
-            'no_telepon'  => $this->request->getPost('no_telepon'),
-            'deskripsi'   => $this->request->getPost('deskripsi'),
-            'pengalaman'  => $this->request->getPost('pengalaman'),
-            'layanan'     => $this->request->getPost('layanan'),
-            'alasan'      => $this->request->getPost('alasan'),
-            'catatan'     => $this->request->getPost('catatan'),
+            'nama'                    => $this->request->getPost('nama'),
+            'foto'                    => $namaFoto,
+            'kategori'                => $this->request->getPost('kategori'),
+            'harga'                   => $this->request->getPost('harga'),
+            'lokasi'                  => $this->request->getPost('lokasi'),
+            'no_telepon'              => $this->request->getPost('no_telepon'),
+            'deskripsi'               => $this->request->getPost('deskripsi'),
+            'pengalaman'              => $this->request->getPost('pengalaman'),
+            'layanan'                 => $this->request->getPost('layanan'),
+            'alasan'                  => $this->request->getPost('alasan'),
+            'catatan'                 => $this->request->getPost('catatan'),
+            'is_trend'                => $this->request->getPost('is_trend') ? 1 : 0,
+            'is_wedding_reference'    => $this->request->getPost('is_wedding_reference') ? 1 : 0,
+            'wedding_reference_title' => $this->request->getPost('wedding_reference_title'),
+            'wedding_reference_foto'  => $namaRefFoto,
         ]);
 
         return redirect()->to('/admin/vendor')->with('success', 'Vendor berhasil diperbarui');
@@ -103,6 +131,10 @@ class Vendor extends BaseController
 
         if ($vendor['foto'] && file_exists('uploads/' . $vendor['foto'])) {
             unlink('uploads/' . $vendor['foto']);
+        }
+
+        if ($vendor['wedding_reference_foto'] && file_exists('uploads/' . $vendor['wedding_reference_foto'])) {
+            unlink('uploads/' . $vendor['wedding_reference_foto']);
         }
 
         $this->vendor->delete($id);

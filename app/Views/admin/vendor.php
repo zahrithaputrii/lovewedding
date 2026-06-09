@@ -27,6 +27,8 @@
                         <th class="py-3">Nama Vendor</th>
                         <th class="py-3">Kategori</th>
                         <th class="py-3">Harga</th>
+                        <th class="py-3 text-center">Trend</th>
+                        <th class="py-3 text-center">Wedding Ref</th>
                         <th class="py-3 text-center">Aksi</th>
                     </tr>
                 </thead>
@@ -60,6 +62,20 @@
                                 Rp <?= number_format($v['harga'], 0, ',', '.') ?>
                             </td>
                             <td class="text-center">
+                                <?php if(isset($v['is_trend']) && $v['is_trend'] == 1): ?>
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-2">Yes</span>
+                                <?php else: ?>
+                                    <span class="badge bg-light text-muted border rounded-pill px-2">No</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center">
+                                <?php if(isset($v['is_wedding_reference']) && $v['is_wedding_reference'] == 1): ?>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-2">Yes</span>
+                                <?php else: ?>
+                                    <span class="badge bg-light text-muted border rounded-pill px-2">No</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center">
                                 <div class="btn-group">
                                     <a href="<?= base_url('admin/vendor/detail/' . $v['id']) ?>" 
                                        class="btn btn-sm btn-outline-info" title="Lihat Detail">
@@ -79,7 +95,7 @@
                         </tr>
                         <?php endforeach ?>
                     <?php else: ?>
-                        <tr><td colspan="6" class="text-center py-5">Belum ada data vendor.</td></tr>
+                        <tr><td colspan="8" class="text-center py-5">Belum ada data vendor.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>

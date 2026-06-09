@@ -62,4 +62,5 @@ $routes->group('api', function($routes) {
     $routes->get('vendor', 'Api\VendorApi::index');
     $routes->get('vendor-gallery', 'Api\VendorGalleryApi::index');
     $routes->get('vendor-review', 'Api\VendorReviewApi::index');
+    $routes->get('paket-vendor', 'Api\PaketApi::index');
 });

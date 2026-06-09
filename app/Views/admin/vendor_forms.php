@@ -122,6 +122,53 @@ if ($isDetail) $title = 'Detail Vendor';
                 </div>
             </div>
 
+            <div class="row mb-4 border-top pt-4">
+                <div class="col-12">
+                    <h5 class="fw-bold text-primary mb-3 border-bottom pb-2">
+                        <i class="bi bi-star-fill me-2"></i>Pengaturan Trend & Wedding Reference
+                    </h5>
+                </div>
+                
+                <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch mt-2">
+                        <input class="form-check-input" type="checkbox" name="is_trend" id="isTrend" value="1" 
+                               <?= ($isEdit && isset($vendor['is_trend']) && $vendor['is_trend'] == 1) ? 'checked' : '' ?> <?= $isDetail ? 'disabled' : '' ?>>
+                        <label class="form-check-label fw-bold" for="isTrend">Tampilkan di Trend Home (Aplikasi)</label>
+                    </div>
+                    <div class="form-text text-muted small">Jika dicentang, vendor ini akan masuk ke daftar tren di halaman depan aplikasi Flutter.</div>
+                    
+                    <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" name="is_wedding_reference" id="isWeddingReference" value="1" 
+                               <?= ($isEdit && isset($vendor['is_wedding_reference']) && $vendor['is_wedding_reference'] == 1) ? 'checked' : '' ?> <?= $isDetail ? 'disabled' : '' ?>>
+                        <label class="form-check-label fw-bold" for="isWeddingReference">Jadikan Wedding Reference</label>
+                    </div>
+                    <div class="form-text text-muted small">Jika dicentang, vendor ini akan menjadi salah satu kategori/koleksi di halaman Wedding Reference aplikasi Flutter.</div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Judul Wedding Reference / Trend</label>
+                        <input type="text" name="wedding_reference_title" value="<?= $isEdit ? esc($vendor['wedding_reference_title']) : '' ?>" 
+                               class="form-control border-2 shadow-sm" placeholder="Contoh: Garden Wedding / Modern Rustic" <?= $isDetail ? 'readonly' : '' ?>>
+                        <div class="form-text text-muted small">Judul khusus tema yang ditampilkan di bagian atas Wedding Reference/Trend.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Foto Wedding Reference / Trend</label>
+                        <?php if($isEdit && !empty($vendor['wedding_reference_foto'])): ?>
+                            <div class="mb-2">
+                                <img src="<?= base_url('uploads/' . $vendor['wedding_reference_foto']) ?>" 
+                                     class="rounded shadow-sm border" style="max-height: 120px; object-fit: cover;">
+                            </div>
+                        <?php endif; ?>
+                        <?php if (!$isDetail): ?>
+                            <input type="file" name="wedding_reference_foto" class="form-control form-control-sm shadow-sm" accept="image/*">
+                            <div class="form-text small italic text-pink">* Unggah foto bertema referensi pernikahan.</div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
             <div class="pt-4 border-top text-end">
                 <?php if($isDetail): ?>
                     <a href="<?= base_url('admin/vendor/edit/' . $vendor['id']) ?>" class="btn btn-warning px-5 py-2 rounded-pill shadow fw-bold text-white">
