@@ -52,9 +52,14 @@ $routes->group('admin', ['filter' => 'admin'], function($routes) {
     $routes->get('pembayaran/reject/(:num)', 'Admin\Pembayaran::reject/$1');
 });
 
-$routes->get('api/test', 'Api\TestController::index');
-$routes->get('api/vendor', 'Api\VendorApi::index');
-$routes->get('api/vendor/(:num)', 'Api\VendorApi::detail/$1');
-$routes->get('api/booking', 'Api\BookingApi::index');
-$routes->get('api/booking/(:num)', 'Api\BookingApi::detail/$1');
-
+$routes->group('api', function($routes) {
+    $routes->get('test', 'Api\TestController::index');
+    
+    $routes->get('booking', 'Api\BookingApi::index');
+    $routes->get('layanan', 'Api\LayananApi::index');
+    $routes->get('user', 'Api\UserApi::index');
+    $routes->get('user-detail', 'Api\UserDetailApi::index');
+    $routes->get('vendor', 'Api\VendorApi::index');
+    $routes->get('vendor-gallery', 'Api\VendorGalleryApi::index');
+    $routes->get('vendor-review', 'Api\VendorReviewApi::index');
+});

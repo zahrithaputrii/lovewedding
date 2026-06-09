@@ -3,7 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\BookingaModel;
+use App\Models\BookingModel;
 
 class BookingApi extends BaseController
 {
